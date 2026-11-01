@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hermes Auto-Agency — Live Build Dashboard</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --panel: #121a33;
+    --panel-2: #172040;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --violet: #8b5cf6;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 700px at 10% -10%, rgba(139,92,246,.14), transparent 60%),
+                radial-gradient(900px 700px at 90% 10%, rgba(236,72,153,.10), transparent 55%),
+                var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+    padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  header.top h1 { font-size: 20px; margin: 0; letter-spacing: .3px; }
+  header.top .sub { color: var(--muted); font-size: 13px; }
+  .kicker {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .kicker span.dim { color: var(--muted); font-size: 12px; }
+  .progress-wrap { margin-top: 18px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: center; }
+  .progress-head .lbl { color: var(--muted); font-size: 13px; }
+  .prog {
+    height: 18px; border-radius: 9px; background: rgba(255,255,255,.07);
+    overflow: hidden; position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,.35);
+  }
+  .prog i {
+    display: block; height: 100%; border-radius: 9px;
+    background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+    transition: width .4s ease;
+  }
+  main.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 18px; }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(18,26,51,.05));
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.28);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,.35); }
+  .card .row { display: flex; align-items: center; gap: 10px; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--muted); flex-shrink: 0;
+  }
+  .dot.green { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,.55); }
+  .dot.amber { background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,.55); }
+  .dot.red { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,.55); }
+  .dot.blue { background: var(--blue); box-shadow: 0 0 8px rgba(59,130,246,.55); }
+  .title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px; word-break: break-word; }
+  .meta { color: var(--muted); font-size: 12px; line-height: 1.45; }
+  .stat-row { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .stat { display: flex; justify-content: space-between; }
+  .stat b { color: var(--text); font-weight: 600; }
+  .prog-sm { height: 6px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .prog-sm i { display: block; height: 100%; border-radius: 4px; background: var(--violet); }
+  .url { margin-top: 8px; font-size: 12px; color: var(--blue); word-break: break-all; }
+  .url::before { content: "🌐 "; }
+  .clock { margin-top: 22px; display: flex; justify-content: space-between; align-items: center; }
+  .clock .r { color: var(--muted); font-size: 13px; }
+  .clock .l { font-size: 13px; font-weight: 600; }
+  .status-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .status-legend .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 18px; text-align: center; }
+  @media (max-width: 600px) { main.grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>🏛 Hermes Auto-Agency</h1>
+      <div class="sub">Live ETA · Multi-app build &amp; deploy telemetry</div>
+    </div>
+    <div class="kicker">
+      <span class="dim" id="app-count">6 apps · 0 done</span>
+      <span class="dim" id="eta-label">ETA —</span>
+    </div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-head">
+      <span class="lbl">Overall pipeline</span>
+      <span class="lbl" id="pct-label">0%</span>
+    </div>
+    <div class="prog"><i id="prog-bar" style="width:0%"></i></div>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <div class="clock">
+    <div class="l" id="clock-label">00:00:00</div>
+    <div class="r">Build phase time (local agent clock)</div>
+  </div>
+
+  <div class="status-legend">
+    <span><span class="sw green"></span> live / deployed</span>
+    <span><span class="sw amber"></span> running phase</span>
+    <span><span class="sw red"></span> build error</span>
+    <span><span class="sw grey"></span> pending</span>
+  </div>
+
+  <div class="hint">Open this file in a browser (or serve via <code>python3 -m http.server 8899</code>) while the pipeline runs for live telemetry.</div>
+</div>
+
+<script>
+  (function () {
+    const state = { apps: {}, clock: "", completed: 0, total: 6 };
+    const grid = document.getElementById('grid');
+    const appCount = document.getElementById('app-count');
+    const pctLabel = document.getElementById('pct-label');
+    const progBar = document.getElementById('prog-bar');
+    const clockLabel = document.getElementById('clock-label');
+    const etaLabel = document.getElementById('eta-label');
+
+    const statusMeta = {
+      running: { dot: 'amber', label: 'Running' },
+      scrape: { dot: 'amber', label: 'Scaffold' },
+      ui: { dot: 'blue', label: 'UI gen' },
+      mock: { dot: 'blue', label: 'Mock data' },
+      build: { dot: 'green', label: 'Build OK' },
+      live: { dot: 'green', label: 'Deployed ✓' },
+      error: { dot: 'red', label: 'Build FAILED' },
+    };
+
+    function statusMetaFor(st) {
+      return statusMeta[st] || { dot: 'grey', label: st || 'Pending' };
+    }
+
+    function render() {
+      const s = state;
+      const apps = Object.keys(s.apps).map(function (k) { return Object.assign({ slug: k }, s.apps[k]); });
+      apps.sort(function (a, b) { return (a.phase - b.phase) || (a.step - b.step); });
+
+      const total = s.total || apps.length;
+      const done = s.completed || 0;
+      const pct = total ? Math.round(done / total * 100) : 0;
+
+      appCount.textContent = total + ' apps · ' + done + ' done';
+      pctLabel.textContent = pct + '%';
+      progBar.style.width = pct + '%';
+
+      grid.innerHTML = '';
+      apps.forEach(function (a) {
+        const m = statusMetaFor(a.status);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<div class="row"><span class="dot ' + m.dot + '"></span>' +
+          '<div class="title">' + (a.title || a.slug) + '</div></div>' +
+          '<div class="meta">' + (a.detail || m.label) + '</div>' +
+          '<div class="stat-row">' +
+            '<div class="stat"><span>Phase</span><b>' + (a.phase || '-') + '</b></div>' +
+            '<div class="stat"><span>Step</span><b>' + (a.step || '-') + '</b></div>' +
+            '<div class="stat"><span>Progress</span><b>' + (a.pct || 0) + '%</b></div>' +
+            '<div class="stat"><span>Status</span><b class="dot ' + m.dot + '"></b>' + m.label + '</div>' +
+          '</div>' +
+          (a.url ? '<div class="url">' + a.url + '</div>' : '');
+        grid.appendChild(card);
+      });
+
+      document.getElementById('clock-label').textContent = state.clock || new Date().toLocaleTimeString();
+      document.getElementById('eta-label').textContent =
+        done >= total ? 'FINISHED' : (done ? (total - done) + ' remaining' : 'queued');
+    }
+
+    function poll() {
+      fetch('dashboard_state.json', { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) return;
+        return r.json();
+      }).then(function (d) {
+        Object.assign(state, d);
+        render();
+      }).catch(function () {});
+    }
+
+    // also tick a local clock as a fallback
+    setInterval(function () {
+      document.getElementById('clock-label').textContent = new Date().toLocaleTimeString();
+    }, 1000);
+
+    poll();
+    setInterval(poll, 1000);
+  })();
+</script>
+</body>
+</html>

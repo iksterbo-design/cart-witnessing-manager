@@ -1,8 +1,4 @@
-import { App } from './app';
-
-// Render the app
-const container = document.getElementById('app');
-if (container) {
-  container.innerHTML = '';
-  container.appendChild(App());
-}
+import './style.css';
+import { App } from './App';
+const root = document.getElementById('root');
+if (root) { root.appendChild(App()); }
