@@ -47,7 +47,7 @@ export function Header({ darkMode, onToggleDark }: { darkMode: boolean; onToggle
 }
 
 // ---- Stats Cards ----
-export function StatsCards({ stats }: { stats: typeof getStats(initialState) }) {
+export function StatsCards({ stats }: { stats: ReturnType<typeof getStats> }) {
   const statCards = [
     {
       label: 'Active Carts',
