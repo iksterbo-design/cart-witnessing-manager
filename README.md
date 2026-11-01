@@ -2,7 +2,7 @@
 
 A witnessing outreach cart that tracks contacts, stages, follow-ups, and activity logs.  
 
-Live: `https://placeholder.vercel.app`
+Live: `https://cart-witnessing-manager-3z27op7tl-rojo12.vercel.app`
 
 ## Stack
 - Vite + Vanilla TypeScript + Tailwind CSS (dark mode)
